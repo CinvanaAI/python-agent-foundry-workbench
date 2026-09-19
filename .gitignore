@@ -1,0 +1,15 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+build/
+dist/
+*.egg-info/
+output/
+tagged_messages.jsonl
+run_summary.json
+conversations*.json
+.env
+Storage/Generated Artifacts/
+Storage/Generated Output/
+.mp_self_tests/

@@ -1,0 +1,11 @@
+{
+  "kind": "captured synthetic execution projection",
+  "command": "python -m examples.first_workflow --workspace ./demo-workspace",
+  "input_example": "examples/first_workflow.py",
+  "observed_output": {
+    "result": {
+      "normalized": "hello foundry"
+    }
+  },
+  "projection_note": "Selected fields from a successful local run. Machine paths, temporary identifiers and execution timestamps are omitted. Re-run the linked example for fresh evidence."
+}
