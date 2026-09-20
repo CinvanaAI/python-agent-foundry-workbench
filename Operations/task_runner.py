@@ -173,6 +173,13 @@ class TaskRunner:
         inserted_sys_path = False
         loaded_module_name: str | None = None
         validated_runtime_payload = validate_runtime_payload(runtime_payload)
+        package_names = {path.stem for path in running_dir.glob("*.py")}
+        prior_modules = {name: sys.modules[name] for name in package_names if name in sys.modules}
+        # This historical runner is sequential and in-process. A materialized
+        # revision must not reuse a module cached by an earlier run or the host.
+        for name in package_names:
+            sys.modules.pop(name, None)
+        importlib.invalidate_caches()
 
         try:
             workflow_path = self._get_task_workflow_path(
@@ -198,6 +205,19 @@ class TaskRunner:
             return workflow_callable(validated_runtime_payload)
 
         finally:
+            for name, module in list(sys.modules.items()):
+                location = getattr(module, "__file__", None)
+                if not location:
+                    continue
+                try:
+                    belongs_to_run = Path(location).resolve().is_relative_to(running_dir.resolve())
+                except (OSError, TypeError, ValueError):
+                    belongs_to_run = False
+                if belongs_to_run:
+                    sys.modules.pop(name, None)
+            for name in package_names:
+                sys.modules.pop(name, None)
+            sys.modules.update(prior_modules)
             if loaded_module_name:
                 sys.modules.pop(loaded_module_name, None)
 
